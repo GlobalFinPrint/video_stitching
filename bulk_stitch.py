@@ -13,7 +13,7 @@ def stitch_videos(root_dir, base_out_dir):
     for root, subdirs, files in os.walk(root_dir):
         with tempfile.TemporaryDirectory() as tmpdir:
             logging.info('**** Processing folder: {}'.format(root))
-            mp4s = [fi for fi in files if fi.lower().endswith('.mp4')]
+            mp4s = [fi for fi in files if fi.lower().endswith('.mp4') and not fi.startswith('._')]
             file_text = ''
             for vid in mp4s:
                 logging.info('Copying video {}'.format(vid))
