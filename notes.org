@@ -1,11 +1,4 @@
 * Stitching
-** AWS
-*** Connect to instance
-    ssh -i gf-dev.pem ubuntu@ec2-52-42-57-70.us-west-2.compute.amazonaws.com
-*** Creating instance
-**** Instance type M4.XLarge
-**** Add SSD storage (was 200GB)
-     available as /dev/xvdb
 ** VM
 *** Login
     SSH  FinPrintTemp (10.0.102.70)
