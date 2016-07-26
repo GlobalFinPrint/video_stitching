@@ -1,0 +1,49 @@
+* Stitching
+** AWS
+*** Connect to instance
+    ssh -i gf-dev.pem ubuntu@ec2-52-42-57-70.us-west-2.compute.amazonaws.com
+*** Creating instance
+**** Instance type M4.XLarge
+**** Add SSD storage (was 200GB)
+     available as /dev/xvdb
+** VM
+*** Login
+    SSH  FinPrintTemp (10.0.102.70)
+    L:finprint (admin rights)
+    P: vulcan
+    (ssh finprint@10.0.102.70)
+*** Copy to server
+    scp bulk_stitch.py finprint@FinPrintTemp:~/
+*** Convert to mp4
+    ffmpeg -f concat -i <(printf "file '$PWD/%s'\n" ./*.MP4) -c copy output.MP4
+    (doc on concat: https://trac.ffmpeg.org/wiki/Concatenate)
+*** Re-mux mp4 to avi
+    ffmpeg -I joined.mp4 -vcodec copy -r 29.97 -an joined.avi
+*** Media share
+    FP1MEDIA
+*** Local videos
+    ~/Videos/
+*** Video share
+    smb://fp1media/Fin_Print_Video/
+    mounted on machine at /media/windowsshare
+**** Add to /etc/fstab
+     //10.0.100.247/Fin_Print_Video /media/windowsshare cifs username=svc_hdcopy,password=Chdl2004,iocharset=utf8,sec=ntlm,file_mode=0777,dir_mode=0777 0 0
+     (without the uid and gid, only root will have write access)
+     Must reboot for this to take effect, "mount -a" is insufficient
+** Bulk stitching script
+*** Use
+    Two files, bulk_stitch.py, concat_mpeg.sh. From folder containing these files:
+    - python3 bulk_stitch.py <root_input_dir> <output_dir>
+    Will walk through root_input_dir, stitching videos found in the same folder. Output_dir will match
+    original folder structure, but will contain joined versions of the mp4s, remuxed to avi. Each video
+    will be called "joined.avi".
+*** Setting up the machine
+    - sudo apt install python3
+    - sudo apt install pip3
+    - sudo apt install ipython3
+    - pip3 install click
+    - Machine must already have ffmpeg and appropriate encoders.
+*** Additional considerations
+    - Run time is long. Using screen would be a very good idea. 
+      (see: https://www.rackaid.com/blog/linux-screen-tutorial-and-how-to/)
+    - Reattach to screen with "screen -r"
