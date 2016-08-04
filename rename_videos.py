@@ -21,9 +21,9 @@ import shutil
 @click.argument('excel_file')
 @click.argument('output_folder')
 def rename_videos(video_dir, excel_file, output_folder):
-    wb = openpyxl.load_workbook(in_file)
-    set_sheet = wb['Set']
-    get_cell_by_name = get_cell_by_name_extractor(get_header_map(sheet.rows[0]))
+    wb = openpyxl.load_workbook(excel_file)
+    sheet = wb['Set']
+    get_cell = get_cell_by_name_extractor(get_header_map(sheet.rows[0]))
     for row in sheet.rows[1:]:
         trip_code = get_cell(row, 'trip_code').value
         set_code = get_cell(row, 'set_code').value
@@ -34,9 +34,11 @@ def rename_videos(video_dir, excel_file, output_folder):
                 video_path = '{}/{}/joined.avi'.format(video_dir, video)
                 new_video_path = '{}/{}_{}.avi'.format(output_folder, trip_code, set_code)
                 if os.path.isfile(video_path):
+                    logging.info('Copying "{}" to "{}"'.format(video_path, new_video_path))
                     if os.path.isfile(new_video_path):
                         logging.warning('Overwriting video "{}"'.format(new_video_path))
                     shutil.copyfile(video_path, new_video_path)
+                    logging.info('Finished copying video for trip: {}, set: {}'.format(trip_code, set_code))
                 else:
                     logging.error('Video "{}" does not exist'.format(video_path))
             else:
