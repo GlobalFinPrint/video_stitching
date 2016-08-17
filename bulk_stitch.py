@@ -25,7 +25,6 @@ def stitch_videos(root_dir, base_out_dir):
                 mp4_list_file.close()
 
                 logging.info('Concatenating mp4s...')
-                #subprocess.run('~/concat_mpeg.sh', shell=True, cwd=tmpdir)
                 subprocess.run(
                     'ffmpeg -f concat -i mp4_list.txt -c copy output.MP4',
                     shell=True,
