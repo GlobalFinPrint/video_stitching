@@ -28,11 +28,12 @@ def rename_videos(video_dir, excel_file, output_folder):
         trip_code = get_cell(row, 'trip_code').value
         set_code = get_cell(row, 'set_code').value
         video = get_cell(row, 'video').value
+        camera = get_cell(row, 'camera').value
         if trip_code and set_code:
             logging.info('Finding video for trip: {}, set: {}'.format(trip_code, set_code))
             if video:
                 video_path = '{}/{}/joined.avi'.format(video_dir, video)
-                new_video_path = '{}/{}_{}.avi'.format(output_folder, trip_code, set_code)
+                new_video_path = '{}/{}_{}_{}.avi'.format(output_folder, trip_code, set_code, camera)
                 if os.path.isfile(video_path):
                     logging.info('Copying "{}" to "{}"'.format(video_path, new_video_path))
                     if os.path.isfile(new_video_path):
