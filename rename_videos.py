@@ -46,7 +46,7 @@ def rename_videos(video_dir, excel_file, output_folder):
                         logging.info('Moving "{}" to "{}"'.format(orig_video_path, new_video_path))
                         if os.path.isfile(new_video_path):
                             logging.warning('Overwriting video "{}"'.format(new_video_path))
-                        shutil.copyfile(orig_video_path, new_video_path)
+                        shutil.move(orig_video_path, new_video_path)
                         logging.info('Finished copying video for trip: {}, set: {}'.format(trip_code, set_code))
                     else:
                         logging.error('Video "{}" does not exist'.format(orig_video_path))
