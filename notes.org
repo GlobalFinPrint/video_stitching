@@ -20,7 +20,9 @@
     smb://fp1media/Fin_Print_Video/
     mounted on machine at /media/windowsshare
 **** Add to /etc/fstab
-     //10.0.100.247/Fin_Print_Video /media/windowsshare cifs username=svc_hdcopy,password=Chdl2004,iocharset=utf8,sec=ntlm,file_mode=0777,dir_mode=0777 0 0
+     //10.0.108.102/Fin_Print_Video /media/video_share cifs username=svc_hdcopy,password=Chdl2004,iocharset=utf8,sec=ntlm,file_mode=0777,dir_mode=0777 0 0
+     //10.0.106.81/Fin_Print1_44TB /media/fishy_44 cifs username=svc_hdcopy,password=Chdl2004,iocharset=utf8,sec=ntlm,file_mode=0777,dir_mode=0777 0 0
+
      (without the uid and gid, only root will have write access)
      Must reboot for this to take effect, "mount -a" is insufficient
 ** Bulk stitching script
@@ -42,3 +44,4 @@
       (see: https://www.rackaid.com/blog/linux-screen-tutorial-and-how-to/)
     - Reattach to screen with "screen -r"
 ** Bulk rename script
+   python3 rename_videos.py /media/video_share/tmp/ sherman.xlsx /media/video_share/Sol_Island_Dec_2015/ &> rename.log
