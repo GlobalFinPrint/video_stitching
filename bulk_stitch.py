@@ -5,6 +5,8 @@ import shutil
 import subprocess
 import logging
 
+FILE_ENDING = 'mp4'
+
 @click.command()
 @click.argument('root_dir')
 @click.argument('base_out_dir')
@@ -26,7 +28,7 @@ def stitch_videos(root_dir, base_out_dir):
 
                 logging.info('Concatenating mp4s...')
                 subprocess.run(
-                    'ffmpeg -f concat -i mp4_list.txt -c copy output.MP4',
+                    'ffmpeg -f concat -i mp4_list.txt -c copy joined.mp4',
                     shell=True,
                     cwd=tmpdir
                 )
@@ -35,16 +37,17 @@ def stitch_videos(root_dir, base_out_dir):
                 out_dir = base_out_dir + os.path.sep + directory
                 if not os.path.exists(out_dir):
                     os.makedirs(out_dir)
-                logging.info('Converting from mp4 to avi...')
-                subprocess.run(
-                    'ffmpeg -i output.MP4 -vcodec copy -r 29.97 -an joined.avi'.format(out_dir),
-                    shell=True,
-                    cwd=tmpdir
-                )
-                logging.info('Copying avi to final location...')
+                if FILE_ENDING == 'avi':
+                    logging.info('Converting from mp4 to avi...')
+                    subprocess.run(
+                        'ffmpeg -i joined.mp4 -vcodec copy -r 29.97 -an joined.avi'.format(out_dir),
+                        shell=True,
+                        cwd=tmpdir
+                    )
+                logging.info('Copying {} to final location...'.format(FILE_ENDING))
                 shutil.copyfile(
-                    tmpdir + os.path.sep + 'joined.avi',
-                    out_dir + os.path.sep + 'joined.avi'
+                    tmpdir + os.path.sep + 'joined.' + FILE_ENDING,
+                    out_dir + os.path.sep + 'joined.' + FILE_ENDING
                 )
                 logging.info('Finished folder.\n')
 
