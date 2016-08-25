@@ -33,15 +33,15 @@ def rename_videos(video_dir, excel_file, output_folder):
             logging.info('Finding video for trip: {}, set: {}'.format(trip_code, set_code))
             if video:
                 video_path = '{}/{}'.format(video_dir, video)
-                video_candidates = [xx for xx in os.walk(video_path) if 'joined.avi' in xx[2]]
+                video_candidates = [xx for xx in os.walk(video_path) if 'joined.mp4' in xx[2]]
                 if len(video_candidates) > 1:
                     logging.error('More than one video found for this set.')
                 elif len(video_candidates) == 0:
                     logging.warning('No video found for this set.')
                 else:
                     joined_video_info = video_candidates[0]
-                    orig_video_path = '{}/joined.avi'.format(joined_video_info[0])
-                    new_video_path = '{}/{}_{}_{}.avi'.format(output_folder, trip_code, set_code, camera)
+                    orig_video_path = '{}/joined.mp4'.format(joined_video_info[0])
+                    new_video_path = '{}/{}_{}_{}.mp4'.format(output_folder, trip_code, set_code, camera)
                     if os.path.isfile(orig_video_path):
                         logging.info('Moving "{}" to "{}"'.format(orig_video_path, new_video_path))
                         if os.path.isfile(new_video_path):
