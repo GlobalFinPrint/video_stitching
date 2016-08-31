@@ -5,6 +5,8 @@ import shutil
 import subprocess
 import logging
 
+import stitch_common as sc
+
 FILE_ENDING = 'mp4'
 
 @click.command()

@@ -2,9 +2,8 @@ import os
 import click
 import tempfile
 import shutil
-import subprocess
 import logging
-import json
+import stitch_common as sc
 
 @click.command()
 @click.argument('root_dir')
@@ -17,26 +16,12 @@ def get_video_lengths(root_dir):
             file_path = "{}/{}".format(root, vid)
             logging.info('Grabbing details from {}'.format(file_path))
 
-            pipe = subprocess.Popen(
-                'ffprobe -v quiet -print_format json -show_format "{}"'.format(file_path),
-                shell=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT
-            )
-
-            output = pipe.stdout.read().decode('utf-8')
-            mp4_details = json.loads(output)
-
+            mp4_details = sc.get_video_details(file_path)
             if len(mp4_details) == 0:
                 logging.error('**** bad mp4 detected: {} ****'.format(file_path))
             else:
-                logging.info('MP4 details: {}'.format(output))
+                logging.info('MP4 details: {}'.format(str(mp4_details)))
         logging.info('Finished folder.\n')
-
-def remove_prefix(text, prefix):
-    if text.startswith(prefix):
-        return text[len(prefix):]
-    return text
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO)
