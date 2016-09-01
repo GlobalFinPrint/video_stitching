@@ -4,6 +4,7 @@ import tempfile
 import shutil
 import subprocess
 import logging
+import time
 
 import stitch_common as sc
 
@@ -21,41 +22,53 @@ def stitch_videos(root_dir, base_out_dir):
         if os.path.exists(out_file_name):
             logging.warning('***Skipping: "{}" already exists'.format(out_file_name))
         else:
-            with tempfile.TemporaryDirectory() as tmpdir:
-                logging.info('**** Processing folder: {}'.format(root))
-                mp4s = [fi for fi in files if fi.lower().endswith('.mp4') and not fi.startswith('._')]
-                file_text = ''
-                for vid in mp4s:
-                    logging.info('Copying video {}'.format(vid))
-                    shutil.copyfile(root + os.path.sep + vid, tmpdir + os.path.sep + vid)
-                    file_text += "file '{}/{}'\n".format(tmpdir, vid)
-                if len(mp4s) > 0:
-                    mp4_list_file = open('{}/mp4_list.txt'.format(tmpdir), 'w')
-                    mp4_list_file.write(file_text)
-                    mp4_list_file.close()
+            file_not_stitched = True
+            while file_not_stitched:
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    logging.info('**** Processing folder: {}'.format(root))
+                    mp4s = [fi for fi in files if fi.lower().endswith('.mp4') and not fi.startswith('._')]
+                    file_text = ''
+                    for vid in mp4s:
+                        logging.info('Copying video {}'.format(vid))
+                        shutil.copyfile(root + os.path.sep + vid, tmpdir + os.path.sep + vid)
+                        file_text += "file '{}/{}'\n".format(tmpdir, vid)
+                    if len(mp4s) > 0:
+                        mp4_list_file = open('{}/mp4_list.txt'.format(tmpdir), 'w')
+                        mp4_list_file.write(file_text)
+                        mp4_list_file.close()
 
-                    logging.info('Concatenating mp4s...')
-                    subprocess.run(
-                        'ffmpeg -f concat -i mp4_list.txt -c copy joined.mp4',
-                        shell=True,
-                        cwd=tmpdir
-                    )
-
-                    if not os.path.exists(out_dir):
-                        os.makedirs(out_dir)
-                    if FILE_ENDING == 'avi':
-                        logging.info('Converting from mp4 to avi...')
+                        logging.info('Concatenating mp4s...')
                         subprocess.run(
-                            'ffmpeg -i joined.mp4 -vcodec copy -r 29.97 -an joined.avi'.format(out_dir),
+                            'ffmpeg -f concat -safe 0 -i mp4_list.txt -c copy joined.mp4',
                             shell=True,
                             cwd=tmpdir
                         )
-                    logging.info('Copying {} to final location...'.format(FILE_ENDING))
-                    shutil.copyfile(
-                        tmpdir + os.path.sep + 'joined.' + FILE_ENDING,
-                        out_file_name
-                    )
-                    logging.info('Finished folder.\n')
+
+                        if not os.path.exists(out_dir):
+                            os.makedirs(out_dir)
+                        if FILE_ENDING == 'avi':
+                            logging.info('Converting from mp4 to avi...')
+                            subprocess.run(
+                                'ffmpeg -i joined.mp4 -vcodec copy -r 29.97 -an joined.avi'.format(out_dir),
+                                shell=True,
+                                cwd=tmpdir
+                            )
+
+                        joined_file = tmpdir + os.path.sep + 'joined.' + FILE_ENDING
+                        if len(sc.get_video_details(joined_file)) == 0:
+                            logging.error('Joined file is unreadable! Trying again in a minute.')
+                            time.sleep(60)
+                        else:
+                            logging.info('Copying {} to final location...'.format(FILE_ENDING))
+                            shutil.copyfile(
+                                joined_file,
+                                out_file_name
+                            )
+                            logging.info('Finished folder.\n')
+                            file_not_stitched = False
+                    else:
+                        logging.info('No mp4s found in folder.')
+                        file_not_stitched = False
 
 def remove_prefix(text, prefix):
     if text.startswith(prefix):
