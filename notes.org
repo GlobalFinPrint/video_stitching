@@ -2,8 +2,7 @@
 ** VM
 *** Login
     SSH  FinPrintTemp (10.0.102.70)
-    L:finprint (admin rights)
-    P: vulcan
+    U:finprint (admin rights)
     (ssh finprint@10.0.102.70)
 *** Copy to server
     scp bulk_stitch.py finprint@FinPrintTemp:~/
@@ -39,9 +38,21 @@
     - sudo apt install ipython3
     - pip3 install click
     - Machine must already have ffmpeg and appropriate encoders.
+*** Windows machine
+    - install python
+    - install pip
+    - pip install openpyxl (only necessary for rename)
+    - pip install click
+    - install ffmpeg
 *** Additional considerations
     - Run time is long. Using screen would be a very good idea. 
       (see: https://www.rackaid.com/blog/linux-screen-tutorial-and-how-to/)
     - Reattach to screen with "screen -r"
 ** Bulk rename script
    python3 rename_videos.py /media/video_share/tmp/ sherman.xlsx /media/video_share/Sol_Island_Dec_2015/ &> rename.log
+** Assumptions
+   - Spreadsheet will map videos to sets
+   - Folder in spreadsheet is accurate
+   - One or two videos per set
+     - If two, one will be in a folder that starts with "L", the other with "R"
+   - All files for stitching will be in a single folder, and will be the only mp4s in that folder

@@ -9,6 +9,7 @@ import time
 import stitch_common as sc
 
 FILE_ENDING = 'mp4'
+MAX_ATTEMPTS = 3
 
 @click.command()
 @click.argument('root_dir')
@@ -22,8 +23,9 @@ def stitch_videos(root_dir, base_out_dir):
         if os.path.exists(out_file_name):
             logging.warning('***Skipping: "{}" already exists'.format(out_file_name))
         else:
-            file_not_stitched = True
-            while file_not_stitched:
+            attempt_count = 0
+            while attempt_count < MAX_ATTEMPTS:
+                attempt_count += 1
                 with tempfile.TemporaryDirectory() as tmpdir:
                     logging.info('**** Processing folder: {}'.format(root))
                     mp4s = [fi for fi in files if fi.lower().endswith('.mp4') and not fi.startswith('._')]
@@ -65,10 +67,10 @@ def stitch_videos(root_dir, base_out_dir):
                                 out_file_name
                             )
                             logging.info('Finished folder.\n')
-                            file_not_stitched = False
+                            attempt_count = MAX_ATTEMPTS
                     else:
                         logging.info('No mp4s found in folder.')
-                        file_not_stitched = False
+                        attempt_count = MAX_ATTEMPTS
 
 def remove_prefix(text, prefix):
     if text.startswith(prefix):
