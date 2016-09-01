@@ -71,6 +71,8 @@ def stitch_videos(root_dir, base_out_dir):
                     else:
                         logging.info('No mp4s found in folder.')
                         attempt_count = MAX_ATTEMPTS
+            if attempt_count >= MAX_ATTEMPTS:
+                logging.error('Giving up after multiple retries trying to stitch {}'.format(root))
 
 def remove_prefix(text, prefix):
     if text.startswith(prefix):
