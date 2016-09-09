@@ -44,7 +44,7 @@ def rename_videos(video_dir, excel_file, output_folder):
                         processed[ct] = False
                     for camera in camera_types:
                         for candidate in video_candidates:
-                            if os.path.basename(candidate[0]).startswith(camera):
+                            if os.path.basename(candidate[0]).upper().startswith(camera):
                                 if processed[camera]:
                                     logging.error('Second {} camera video found: {}'.format(camera, candidate[0]))
                                 else:
