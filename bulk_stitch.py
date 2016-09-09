@@ -40,7 +40,7 @@ def stitch_videos(root_dir, base_out_dir):
                         mp4_list_file.close()
 
                         logging.info('Concatenating mp4s...')
-                        subprocess.run(
+                        subprocess.call(
                             'ffmpeg -f concat -safe 0 -i mp4_list.txt -c copy joined.mp4',
                             shell=True,
                             cwd=tmpdir
@@ -50,7 +50,7 @@ def stitch_videos(root_dir, base_out_dir):
                             os.makedirs(out_dir)
                         if FILE_ENDING == 'avi':
                             logging.info('Converting from mp4 to avi...')
-                            subprocess.run(
+                            subprocess.call(
                                 'ffmpeg -i joined.mp4 -vcodec copy -r 29.97 -an joined.avi'.format(out_dir),
                                 shell=True,
                                 cwd=tmpdir
