@@ -1,11 +1,5 @@
 * Stitching
-** VM
-*** Login
-    SSH  FinPrintTemp (10.0.102.70)
-    U:finprint (admin rights)
-    (ssh finprint@10.0.102.70)
-*** Copy to server
-    scp bulk_stitch.py finprint@FinPrintTemp:~/
+
 *** Convert to mp4
     ffmpeg -f concat -i <(printf "file '$PWD/%s'\n" ./*.MP4) -c copy output.MP4
     (doc on concat: https://trac.ffmpeg.org/wiki/Concatenate)
