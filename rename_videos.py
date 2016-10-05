@@ -61,6 +61,10 @@ def rename_videos(video_dir, excel_file, output_folder):
                     rename_video(trip_code, set_code, camera, output_folder, orig_video_path)
             else:
                 logging.error('No video specified for this set.')
+    for folder in os.walk(video_dir):
+        for candidate in folder[2]:
+            if candidate.lower() == 'joined.mp4':
+                logging.error('File not renamed. Found in: {}'.format(folder[0]))
 
 def rename_video(trip_code, set_code, camera, output_folder, orig_video_path):
     name_pieces = [trip_code, set_code]
