@@ -14,7 +14,12 @@ MAX_ATTEMPTS = 3
 @click.command()
 @click.argument('root_dir')
 @click.argument('base_out_dir')
-def stitch_videos(root_dir, base_out_dir):
+@click.option('--root_tmp_dir', default=None, help='Where tmp folders should be generated')
+def stitch_videos(root_dir, base_out_dir, root_tmp_dir):
+    if root_tmp_dir:
+        logging.info('Setting directory where temp folders will be created: "{}".'.format(root_tmp_dir))
+        os.environ['TMPDIR'] = root_tmp_dir
+
     logging.info('Starting the stitching process.')
     for root, subdirs, files in os.walk(root_dir):
         directory = remove_prefix(root, root_dir)
