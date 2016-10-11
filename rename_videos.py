@@ -13,6 +13,7 @@ Only the Sets worksheet is used, and only the trip, set, and video columns.
 import logging
 import openpyxl
 import click
+import os
 import os.path
 import shutil
 
@@ -24,6 +25,8 @@ def rename_videos(video_dir, excel_file, output_folder):
     wb = openpyxl.load_workbook(excel_file)
     sheet = wb['Set']
     get_cell = get_cell_by_name_extractor(get_header_map(sheet.rows[0]))
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
     for row in sheet.rows[1:]:
         trip_code = get_cell(row, 'trip_code').value
         set_code = get_cell(row, 'set_code').value
