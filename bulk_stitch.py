@@ -72,7 +72,7 @@ def stitch_videos(root_dir, base_out_dir, root_tmp_dir):
                                 out_file_name
                             )
                             logging.info('Finished folder.\n')
-                            attempt_count = MAX_ATTEMPTS
+                            break # exit retry loop
                     else:
                         logging.info('No mp4s found in folder.')
                         attempt_count = MAX_ATTEMPTS
