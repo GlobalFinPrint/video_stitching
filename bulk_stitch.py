@@ -31,12 +31,13 @@ def stitch_videos(root_dir, base_out_dir, root_tmp_dir, rename_on_copy):
                 join_mp4s(set_path, base_out_dir, '{}_{}.mp4'.format(trip_name, set_name))
                 for camera in get_subdirs(set_path):
                     camera_path = os.path.join(set_path, camera)
-                    if camera_path.lower().startswith('l'):
+                    if camera.lower().startswith('l'):
                         camera_abbrv = 'L'
-                    elif camera_path.lower().startswith('r'):
+                    elif camera.lower().startswith('r'):
                         camera_abbrv = 'R'
                     else:
                         logging.warn('Unexpected camera folder: {}'.format(camera_path))
+                        break
                     join_mp4s(camera_path, base_out_dir, '{}_{}_{}.mp4'.format(trip_name, set_name, camera_abbrv))
     else:
         for root, subdirs, files in os.walk(root_dir):
