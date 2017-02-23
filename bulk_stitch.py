@@ -25,12 +25,13 @@ def stitch_videos(root_dir, base_out_dir, root_tmp_dir, rename_on_copy):
     logging.info('Starting the stitching process.')
     if rename_on_copy:
         logging.info('** Rename on copy mode enabled.')
-        # We have a number of renaming options:
+        # We have a number of renaming strategies:
         #   1) if there is only a single directory that contains the files, assume it is a full trip + set code
         #   2) if there are two directories, assume the first is the trip code and the second the set code
         #   3) if there are three directories, follow assumption (2) and add a stereo L or R directory
         for trip_name in get_subdirs(root_dir):
             trip_path = os.path.join(root_dir, trip_name)
+            join_mp4s(trip_path, base_out_dir, '{}.mp4'.format(trip_name))
             for set_name in get_subdirs(trip_path):
                 set_path = os.path.join(trip_path, set_name)
                 join_mp4s(set_path, base_out_dir, '{}_{}.mp4'.format(trip_name, set_name))
@@ -62,8 +63,9 @@ def join_mp4s(in_dir, out_dir, out_file_name):
         attempt_count += 1
         with tempfile.TemporaryDirectory() as tmpdir:
             logging.info('**** Processing folder: {}'.format(in_dir))
-            mp4s = [fi for fi in files if fi.lower().endswith('.mp4') and not fi.startswith('._')]
+            mp4s = sorted([fi for fi in files if fi.lower().endswith('.mp4') and not fi.startswith('._')])
             file_text = ''
+            # mp4s should be sorted alpha
             for vid in mp4s:
                 logging.info('Copying video {}'.format(vid))
                 shutil.copyfile(in_dir + os.path.sep + vid, tmpdir + os.path.sep + vid)
