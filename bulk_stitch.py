@@ -11,6 +11,7 @@ import stitch_common as sc
 FILE_ENDING = 'mp4'
 MAX_ATTEMPTS = 3
 
+
 @click.command()
 @click.argument('root_dir')
 @click.argument('base_out_dir')
@@ -53,6 +54,7 @@ def stitch_videos(root_dir, base_out_dir, root_tmp_dir, rename_on_copy):
             else:
                 join_mp4s(root, out_dir, out_file_name)
 
+
 def join_mp4s(in_dir, out_dir, out_file_name):
     files = get_files(in_dir)
     attempt_count = 0
@@ -89,18 +91,21 @@ def join_mp4s(in_dir, out_dir, out_file_name):
                         os.path.join(out_dir, out_file_name)
                     )
                     logging.info('Finished folder.\n')
-                    break # exit retry loop
+                    break  # exit retry loop
             else:
                 logging.info('No mp4s found in folder.')
                 attempt_count = MAX_ATTEMPTS
     if attempt_count >= MAX_ATTEMPTS:
         logging.error('Giving up after multiple retries trying to stitch {}'.format(in_dir))
 
+
 def get_subdirs(folder):
     return [xx for xx in os.listdir(folder) if os.path.isdir(os.path.join(folder, xx))]
 
+
 def get_files(folder):
     return [xx for xx in os.listdir(folder) if os.path.isfile(os.path.join(folder, xx))]
+
 
 def concat_mp4s(tmpdir):
     logging.info('Concatenating mp4s...')
@@ -108,11 +113,13 @@ def concat_mp4s(tmpdir):
         'ffmpeg -f concat -safe 0 -i mp4_list.txt -c copy joined.mp4',
         tmpdir)
 
+
 def mp4_to_avi(tmpdir):
     logging.info('Converting from mp4 to avi...')
     run_external_command(
         'ffmpeg -i joined.mp4 -vcodec copy -r 29.97 -an joined.avi',
         tmpdir)
+
 
 def run_external_command(command, tmpdir):
     subprocess.call(
@@ -121,10 +128,12 @@ def run_external_command(command, tmpdir):
         cwd=tmpdir
     )
 
+
 def remove_prefix(text, prefix):
     if text.startswith(prefix):
         return text[len(prefix):]
     return text
+
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO)
