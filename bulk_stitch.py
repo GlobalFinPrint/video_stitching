@@ -24,6 +24,10 @@ def stitch_videos(root_dir, base_out_dir, root_tmp_dir, rename_on_copy):
     logging.info('Starting the stitching process.')
     if rename_on_copy:
         logging.info('** Rename on copy mode enabled.')
+        # We have a number of renaming options:
+        #   1) if there is only a single directory that contains the files, assume it is a full trip + set code
+        #   2) if there are two directories, assume the first is the trip code and the second the set code
+        #   3) if there are three directories, follow assumption (2) and add a stereo L or R directory
         for trip_name in get_subdirs(root_dir):
             trip_path = os.path.join(root_dir, trip_name)
             for set_name in get_subdirs(trip_path):
@@ -36,7 +40,7 @@ def stitch_videos(root_dir, base_out_dir, root_tmp_dir, rename_on_copy):
                     elif camera.lower().startswith('r'):
                         camera_abbrv = 'R'
                     else:
-                        logging.warn('Unexpected camera folder: {}'.format(camera_path))
+                        logging.warning('Unexpected camera folder: {}'.format(camera_path))
                         break
                     join_mp4s(camera_path, base_out_dir, '{}_{}_{}.mp4'.format(trip_name, set_name, camera_abbrv))
     else:
