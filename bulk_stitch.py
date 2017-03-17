@@ -10,6 +10,7 @@ import stitch_common as sc
 
 FILE_ENDING = 'mp4'
 MAX_ATTEMPTS = 3
+LOCAL_FFMPEG = './ffmpeg/bin/ffmpeg'
 
 
 @click.command()
@@ -17,10 +18,13 @@ MAX_ATTEMPTS = 3
 @click.argument('base_out_dir')
 @click.option('--root_tmp_dir', default=None, help='Where tmp folders should be generated')
 @click.option('--rename_on_copy', default=True, is_flag=True)
-def stitch_videos(root_dir, base_out_dir, root_tmp_dir, rename_on_copy):
+@click.option('--local_ffmpeg', default=True, is_flag=True)
+def stitch_videos(root_dir, base_out_dir, root_tmp_dir, rename_on_copy, local_ffmpeg):
     if root_tmp_dir:
         logging.info('Setting directory where temp folders will be created: "{}".'.format(root_tmp_dir))
         os.environ['TMPDIR'] = root_tmp_dir
+
+    ffmpeg_path = LOCAL_FFMPEG if local_ffmpeg else 'ffmpeg'
 
     logging.info('Starting the stitching process.')
     if rename_on_copy:
@@ -31,10 +35,10 @@ def stitch_videos(root_dir, base_out_dir, root_tmp_dir, rename_on_copy):
         #   3) if there are three directories, follow assumption (2) and add a stereo L or R directory
         for trip_name in get_subdirs(root_dir):
             trip_path = os.path.join(root_dir, trip_name)
-            join_mp4s(trip_path, base_out_dir, '{}.mp4'.format(trip_name))
+            join_mp4s(trip_path, base_out_dir, '{}.mp4'.format(trip_name), ffmpeg_path)
             for set_name in get_subdirs(trip_path):
                 set_path = os.path.join(trip_path, set_name)
-                join_mp4s(set_path, base_out_dir, '{}_{}.mp4'.format(trip_name, set_name))
+                join_mp4s(set_path, base_out_dir, '{}_{}.mp4'.format(trip_name, set_name), ffmpeg_path)
                 for camera in get_subdirs(set_path):
                     camera_path = os.path.join(set_path, camera)
                     if camera.lower().startswith('l'):
@@ -44,7 +48,7 @@ def stitch_videos(root_dir, base_out_dir, root_tmp_dir, rename_on_copy):
                     else:
                         logging.warning('Unexpected camera folder: {}'.format(camera_path))
                         break
-                    join_mp4s(camera_path, base_out_dir, '{}_{}_{}.mp4'.format(trip_name, set_name, camera_abbrv))
+                    join_mp4s(camera_path, base_out_dir, '{}_{}_{}.mp4'.format(trip_name, set_name, camera_abbrv), ffmpeg_path)
     else:
         for root, subdirs, files in os.walk(root_dir):
             directory = remove_prefix(root, root_dir)
@@ -53,10 +57,10 @@ def stitch_videos(root_dir, base_out_dir, root_tmp_dir, rename_on_copy):
             if os.path.exists(out_file_name):
                 logging.warning('***Skipping: "{}" already exists'.format(out_file_name))
             else:
-                join_mp4s(root, out_dir, out_file_name)
+                join_mp4s(root, out_dir, out_file_name, ffmpeg_path)
 
 
-def join_mp4s(in_dir, out_dir, out_file_name):
+def join_mp4s(in_dir, out_dir, out_file_name, ffmpeg_path):
     files = get_files(in_dir)
     attempt_count = 0
     while attempt_count < MAX_ATTEMPTS:
@@ -75,12 +79,12 @@ def join_mp4s(in_dir, out_dir, out_file_name):
                 mp4_list_file.write(file_text)
                 mp4_list_file.close()
 
-                concat_mp4s(tmpdir)
+                concat_mp4s(tmpdir, ffmpeg_path)
 
                 if not os.path.exists(out_dir):
                     os.makedirs(out_dir)
                 if FILE_ENDING == 'avi':
-                    mp4_to_avi(tmpdir)
+                    mp4_to_avi(tmpdir, ffmpeg_path)
 
                 joined_file = tmpdir + os.path.sep + 'joined.' + FILE_ENDING
                 if len(sc.get_video_details(joined_file)) == 0:
@@ -109,17 +113,17 @@ def get_files(folder):
     return [xx for xx in os.listdir(folder) if os.path.isfile(os.path.join(folder, xx))]
 
 
-def concat_mp4s(tmpdir):
+def concat_mp4s(tmpdir, ffmpeg_path):
     logging.info('Concatenating mp4s...')
     run_external_command(
-        'ffmpeg -f concat -safe 0 -i mp4_list.txt -c copy joined.mp4',
+        '{} -f concat -safe 0 -i mp4_list.txt -c copy joined.mp4'.format(ffmpeg_path),
         tmpdir)
 
 
-def mp4_to_avi(tmpdir):
+def mp4_to_avi(tmpdir, ffmpeg_path):
     logging.info('Converting from mp4 to avi...')
     run_external_command(
-        'ffmpeg -i joined.mp4 -vcodec copy -r 29.97 -an joined.avi',
+        '{} -i joined.mp4 -vcodec copy -r 29.97 -an joined.avi'.format(ffmpeg_path),
         tmpdir)
 
 
