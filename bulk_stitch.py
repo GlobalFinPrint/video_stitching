@@ -1,4 +1,5 @@
 import os
+import inspect
 import click
 import tempfile
 import shutil
@@ -10,7 +11,7 @@ import stitch_common as sc
 
 FILE_ENDING = 'mp4'
 MAX_ATTEMPTS = 3
-LOCAL_FFMPEG_PATH = '/ffmpeg/bin/'
+LOCAL_FFMPEG_PATH = 'ffmpeg/bin'
 
 
 @click.command()
@@ -23,8 +24,15 @@ def stitch_videos(root_dir, base_out_dir, root_tmp_dir, rename_on_copy, local_ff
     if root_tmp_dir:
         logging.info('Setting directory where temp folders will be created: "{}".'.format(root_tmp_dir))
         os.environ['TMPDIR'] = root_tmp_dir
+    if local_ffmpeg:
+        ffmpeg_path = os.path.join(os.path.abspath(inspect.getsourcefile(lambda: 0)),
+                                   LOCAL_FFMPEG_PATH,
+                                   'ffmpeg')
+        if not os.path.exists(ffmpeg_path):
+            logging.error('ffmpeg is missing.')
+    else:
+        ffmpeg_path = 'ffmpeg'
 
-    ffmpeg_path = os.path.join(os.getcwd(), LOCAL_FFMPEG_PATH, 'ffmpeg') if local_ffmpeg else 'ffmpeg'
     logging.info('Using ffmpeg:  {}'.format(ffmpeg_path))
 
     logging.info('Starting the stitching process.')
@@ -49,7 +57,8 @@ def stitch_videos(root_dir, base_out_dir, root_tmp_dir, rename_on_copy, local_ff
                     else:
                         logging.warning('Unexpected camera folder: {}'.format(camera_path))
                         break
-                    join_mp4s(camera_path, base_out_dir, '{}_{}_{}.mp4'.format(trip_name, set_name, camera_abbrv), ffmpeg_path)
+                    join_mp4s(camera_path, base_out_dir, '{}_{}_{}.mp4'.format(trip_name, set_name, camera_abbrv),
+                              ffmpeg_path)
     else:
         for root, subdirs, files in os.walk(root_dir):
             directory = remove_prefix(root, root_dir)
