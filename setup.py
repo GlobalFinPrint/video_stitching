@@ -1,7 +1,7 @@
 from cx_Freeze import setup, Executable
 
 build_exe_options = {
-    "include_files": ["notes", "bulk_stitch.bat"],
+    "include_files": ["notes", "ffmpeg", "bulk_stitch.bat"],
 }
 
 executables = [
