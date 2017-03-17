@@ -1,0 +1,2 @@
+click==6.7
+cx-Freeze==5.0.1
