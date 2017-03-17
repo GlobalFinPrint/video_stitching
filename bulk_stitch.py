@@ -25,11 +25,10 @@ def stitch_videos(root_dir, base_out_dir, root_tmp_dir, rename_on_copy, local_ff
         logging.info('Setting directory where temp folders will be created: "{}".'.format(root_tmp_dir))
         os.environ['TMPDIR'] = root_tmp_dir
     if local_ffmpeg:
-        ffmpeg_path = os.path.join(os.path.abspath(inspect.getsourcefile(lambda: 0)),
-                                   LOCAL_FFMPEG_PATH,
-                                   'ffmpeg')
-        if not os.path.exists(ffmpeg_path):
-            logging.error('ffmpeg is missing.')
+        ffmpeg_path = os.path.join(os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda: 0))),
+                                   LOCAL_FFMPEG_PATH)
+        if not os.path.isdir(ffmpeg_path):
+            logging.fatal('ffmpeg path is incorrect:'.format(ffmpeg_path))
     else:
         ffmpeg_path = 'ffmpeg'
 
@@ -97,7 +96,7 @@ def join_mp4s(in_dir, out_dir, out_file_name, ffmpeg_path):
                     mp4_to_avi(tmpdir, ffmpeg_path)
 
                 joined_file = tmpdir + os.path.sep + 'joined.' + FILE_ENDING
-                if len(sc.get_video_details(joined_file)) == 0:
+                if len(sc.get_video_details(joined_file, ffmpeg_path)) == 0:
                     logging.error('Joined file is unreadable! Trying again in a minute.')
                     time.sleep(60)
                 else:
@@ -126,14 +125,14 @@ def get_files(folder):
 def concat_mp4s(tmpdir, ffmpeg_path):
     logging.info('Concatenating mp4s...')
     run_external_command(
-        '{} -f concat -safe 0 -i mp4_list.txt -c copy joined.mp4'.format(ffmpeg_path),
+        '{} -f concat -safe 0 -i mp4_list.txt -c copy joined.mp4'.format(os.path.join(ffmpeg_path, 'ffmpeg')),
         tmpdir)
 
 
 def mp4_to_avi(tmpdir, ffmpeg_path):
     logging.info('Converting from mp4 to avi...')
     run_external_command(
-        '{} -i joined.mp4 -vcodec copy -r 29.97 -an joined.avi'.format(ffmpeg_path),
+        '{} -i joined.mp4 -vcodec copy -r 29.97 -an joined.avi'.format(os.path.join(ffmpeg_path, 'ffmpeg')),
         tmpdir)
 
 
