@@ -16,7 +16,7 @@ MAX_ATTEMPTS = 3
 @click.argument('root_dir')
 @click.argument('base_out_dir')
 @click.option('--root_tmp_dir', default=None, help='Where tmp folders should be generated')
-@click.option('--rename_on_copy', is_flag=True)
+@click.option('--rename_on_copy', default=True, is_flag=True)
 def stitch_videos(root_dir, base_out_dir, root_tmp_dir, rename_on_copy):
     if root_tmp_dir:
         logging.info('Setting directory where temp folders will be created: "{}".'.format(root_tmp_dir))

@@ -15,9 +15,9 @@ echo *                                                                          
 echo *                                                                                                     *
 echo * NOTE:  While the stitching process runs it will output lots of lines of (sometimes colorful) text.  *
 echo *        Ignore all of that output and your stitched files should soon be in the destination          *
-echo *          directory!                                                                                   *
+echo *          directory!                                                                                 *
 echo *        If you don't find stitched files in the destination directory please do copy all of the      *
-echo *          output and pass it along to those who are maintaining these scripts.                         *
+echo *          output and pass it along to those who are maintaining these scripts.                       *
 echo *                                                                                                     *
 echo *                                                                                                     *
 echo *******************************************************************************************************
