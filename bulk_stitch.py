@@ -10,7 +10,7 @@ import stitch_common as sc
 
 FILE_ENDING = 'mp4'
 MAX_ATTEMPTS = 3
-LOCAL_FFMPEG = './ffmpeg/bin/ffmpeg'
+LOCAL_FFMPEG_PATH = './ffmpeg/bin/'
 
 
 @click.command()
@@ -24,7 +24,7 @@ def stitch_videos(root_dir, base_out_dir, root_tmp_dir, rename_on_copy, local_ff
         logging.info('Setting directory where temp folders will be created: "{}".'.format(root_tmp_dir))
         os.environ['TMPDIR'] = root_tmp_dir
 
-    ffmpeg_path = LOCAL_FFMPEG if local_ffmpeg else 'ffmpeg'
+    ffmpeg_path = os.path.join(LOCAL_FFMPEG_PATH, 'ffmpeg') if local_ffmpeg else 'ffmpeg'
 
     logging.info('Starting the stitching process.')
     if rename_on_copy:
