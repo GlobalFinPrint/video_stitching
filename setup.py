@@ -10,8 +10,9 @@ executables = [
 
 setup(
     name="finprint_video_stitching",
-    version="0.9",
-    description="Scripts for sticthing FinPrint GoPro files",
+    version="0.1",
+    description="Scripts for stitching FinPrint GoPro files",
+    author="Vulcan, Inc",
     options={
         "build_exe": build_exe_options
     },
