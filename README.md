@@ -4,8 +4,8 @@ Copyright 2015-2017 Vulcan, Inc.
 
 To build:
 1. Create a python 3.5+ virtual environment
-2. `pip install -r requirements.txt`
-3. Assure that the Ffmpeg libraries and executable are in the /lib/ directory 
+2. Activate the environment and `pip install -r requirements.txt` from the project root
+3. If FFmpeg is being used, assure that its libraries and executable are in the /lib/ directory 
 (these can be found here:  http://ffmpeg.zeranoe.com/builds/) 
 4. `python setup.py build_exe`
 

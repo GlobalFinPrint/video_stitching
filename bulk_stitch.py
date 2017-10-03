@@ -24,6 +24,7 @@ def stitch_videos(root_dir, base_out_dir, root_tmp_dir, rename_on_copy, local_ff
     if root_tmp_dir:
         logging.info('Setting directory where temp folders will be created: "{}".'.format(root_tmp_dir))
         os.environ['TMPDIR'] = root_tmp_dir
+
     if local_ffmpeg:
         ffmpeg_path = os.path.join(os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda: 0))),
                                    LOCAL_FFMPEG_PATH)
