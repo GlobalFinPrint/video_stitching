@@ -97,13 +97,18 @@ def join_mp4s(in_dir, out_dir, out_file_name, ffmpeg_path):
                     mp4_to_avi(tmpdir, ffmpeg_path)
 
                 joined_file = tmpdir + os.path.sep + 'joined.' + FILE_ENDING
+                # copy joined file to format
+                joined_file_formated = tmpdir + os.path.sep + 'joined_format.' + FILE_ENDING
                 if len(sc.get_video_details(joined_file, ffmpeg_path)) == 0:
                     logging.error('Joined file is unreadable! Trying again in a minute.')
                     time.sleep(60)
                 else:
-                    logging.info('Copying {} to final location...'.format(FILE_ENDING))
+                    logging.info('Copying {} from {} to final location...'.format(joined_file, tmpdir))
+                    # enforce frame rate
+                    set_frame_rate(tmpdir, ffmpeg_path, joined_file)
+
                     shutil.copyfile(
-                        joined_file,
+                        joined_file_formated,
                         os.path.join(out_dir, out_file_name)
                     )
                     logging.info('Finished folder.\n')
@@ -135,6 +140,11 @@ def mp4_to_avi(tmpdir, ffmpeg_path):
     run_external_command(
         '{} -i joined.mp4 -vcodec copy -r 29.97 -an joined.avi'.format(os.path.join(ffmpeg_path, 'ffmpeg')),
         tmpdir)
+
+
+def set_frame_rate(tmpdir, ffmpeg_path, inputFile):
+    logging.info('Setting frame rates...')
+    run_external_command('{} -y -i {} -r 29.97 joined_format.mp4'.format(os.path.join(ffmpeg_path, 'ffmpeg'), inputFile), tmpdir)
 
 
 def run_external_command(command, tmpdir):
