@@ -77,8 +77,7 @@ def join_mp4s(in_dir, out_dir, out_file_name, ffmpeg_path):
         attempt_count += 1
         with tempfile.TemporaryDirectory() as tmpdir:
             logging.info('**** Processing folder: {}'.format(in_dir))
-            # mp4s = sorted([fi for fi in files if fi.lower().endswith('.mp4') and not fi.startswith('._')])
-            mp4s = sorted([fi for fi in files if fi.lower() and not fi.startswith('._')])
+            mp4s = sorted([fi for fi in files if not fi.startswith('._')])
             file_text = ''
             # mp4s should be sorted alpha
             for vid in mp4s:
