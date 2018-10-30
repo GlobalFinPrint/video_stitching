@@ -77,21 +77,13 @@ def join_mp4s(in_dir, out_dir, out_file_name, ffmpeg_path):
         attempt_count += 1
         with tempfile.TemporaryDirectory() as tmpdir:
             logging.info('**** Processing folder: {}'.format(in_dir))
-            # mp4s = sorted([fi for fi in files if fi.lower().endswith('.mp4') and not fi.startswith('._')])
-            mp4s = sorted([fi for fi in files if fi.lower() and not fi.startswith('._')])
+            mp4s = sorted([fi for fi in files if fi.lower().endswith('.mp4') and not fi.startswith('._')])
             file_text = ''
             # mp4s should be sorted alpha
             for vid in mp4s:
                 logging.info('Copying video {}'.format(vid))
                 shutil.copyfile(in_dir + os.path.sep + vid, tmpdir + os.path.sep + vid)
-                if vid.lower().endswith('.mts'):
-                    logging.info('Processing mts videos')
-                    output_name = vid.rsplit('.', 1)
-                    output_file = output_name[0] + '.mp4'
-                    mts_to_mp4(tmpdir, ffmpeg_path, vid, output_file)
-                    file_text += "file '{}/{}'\n".format(tmpdir, output_file)
-                else:
-                    file_text += "file '{}/{}'\n".format(tmpdir, vid)
+                file_text += "file '{}/{}'\n".format(tmpdir, vid)
             if len(mp4s) > 0:
                 mp4_list_file = open('{}/mp4_list.txt'.format(tmpdir), 'w')
                 mp4_list_file.write(file_text)
@@ -109,33 +101,13 @@ def join_mp4s(in_dir, out_dir, out_file_name, ffmpeg_path):
                     logging.error('Joined file is unreadable! Trying again in a minute.')
                     time.sleep(60)
                 else:
-                    logging.info('-----------------------------------------')
-                    # get fps values
-                    output_result = check_fps(tmpdir, ffmpeg_path, joined_file)
-                    split_array = output_result.split("/")
-                    numerator = int(split_array[0])
-                    denominator = int(split_array[1])
-                    # do the math
-                    math = numerator / denominator
-
-                    if math > 30:
-                        downsample(tmpdir, ffmpeg_path, joined_file)
-                        ouput_file = tmpdir + os.path.sep + 'output.' + FILE_ENDING
-                        logging.info('Copying {} to final location...'.format(ouput_file))
-                        shutil.copyfile(
-                            ouput_file,
-                            os.path.join(out_dir, out_file_name)
-                        )
-                        logging.info('Finished folder.\n')
-                        break  # exit retry loop
-                    else:
-                        logging.info('Copying {} to final location...'.format(joined_file))
-                        shutil.copyfile(
-                            joined_file,
-                            os.path.join(out_dir, out_file_name)
-                        )
-                        logging.info('Finished folder.\n')
-                        break  # exit retry loop
+                    logging.info('Copying {} to final location...'.format(FILE_ENDING))
+                    shutil.copyfile(
+                        joined_file,
+                        os.path.join(out_dir, out_file_name)
+                    )
+                    logging.info('Finished folder.\n')
+                    break  # exit retry loop
             else:
                 logging.info('No mp4s found in folder.')
                 attempt_count = MAX_ATTEMPTS
@@ -156,7 +128,6 @@ def concat_mp4s(tmpdir, ffmpeg_path):
     run_external_command(
         '{} -f concat -safe 0 -i mp4_list.txt -c copy joined.mp4'.format(os.path.join(ffmpeg_path, 'ffmpeg')),
         tmpdir)
-    logging.info('-----------------------------------------')
 
 
 def mp4_to_avi(tmpdir, ffmpeg_path):
@@ -164,42 +135,6 @@ def mp4_to_avi(tmpdir, ffmpeg_path):
     run_external_command(
         '{} -i joined.mp4 -vcodec copy -r 29.97 -an joined.avi'.format(os.path.join(ffmpeg_path, 'ffmpeg')),
         tmpdir)
-
-
-def mts_to_mp4(tmpdir, ffmpeg_path, input_file, output_file):
-    logging.info('Converting from mts to mp4...')
-    run_external_command(
-        '{} -i {} -vcodec mpeg4 -b:v 15M -acodec libmp3lame -b:a 192k {}'.format(os.path.join(ffmpeg_path, 'ffmpeg'),
-                                                                                 input_file, output_file),
-        tmpdir)
-    logging.info('-----------------------------------------')
-
-
-def avi_to_mp4(tmpdir, ffmpeg_path, input_file, output_file):
-    logging.info('Converting from avi to mp4...')
-    run_external_command(
-        '{} -i {} -c:v libx264 -c:a copy {}'.format(os.path.join(ffmpeg_path, 'ffmpeg'), input_file, output_file),
-        tmpdir)
-    logging.info('-----------------------------------------')
-
-
-def downsample(tmpdir, ffmpeg_path, input_file):
-    logging.info('Downsampling...')
-    run_external_command(
-        '{} -r 29.97 -i {} output.mp4'.format(os.path.join(ffmpeg_path, 'ffmpeg'), input_file),
-        tmpdir)
-    logging.info('-----------------------------------------')
-
-
-def check_fps(tmpdir, ffmpeg_path, inputfile):
-    logging.info('Checking fps...')
-    # the shell command
-    command = '{} -v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate {}'.format(
-        os.path.join(ffmpeg_path, 'ffprobe'), inputfile)
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=None, shell=True, cwd=tmpdir)
-    # Launch the shell command:
-    output, error = process.communicate()
-    return output.decode("utf-8")
 
 
 def run_external_command(command, tmpdir):
