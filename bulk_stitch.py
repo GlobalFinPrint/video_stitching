@@ -185,7 +185,7 @@ def avi_to_mp4(tmpdir, ffmpeg_path, input_file, output_file):
 def downsample(tmpdir, ffmpeg_path, input_file):
     logging.info('Downsampling...')
     run_external_command(
-        '{} -i {} -r 29.97 -y output.mp4'.format(os.path.join(ffmpeg_path, 'ffmpeg'), input_file),
+        '{} -i {} -threads 0 -r 29.97 -y output.mp4'.format(os.path.join(ffmpeg_path, 'ffmpeg'), input_file),
         tmpdir)
     logging.info('-----------------------------------------')
 
